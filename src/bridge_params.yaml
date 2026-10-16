@@ -1,0 +1,33 @@
+bridge_params:
+  missionFile:
+    type: string
+    default_value: ""
+    read_only: true
+    description: "Path to MOOS mission file"
+  toROS:
+    type: string_array
+    default_value: []
+    read_only: true
+    description: "The list of MOOS messages to publish to ROS"
+  toMOOS:
+    type: string_array
+    default_value: []
+    read_only: true
+    description: "The list of ROS topics to publish to MOOS"
+  MOOStoROS:
+    __map_toROS:
+      rosTopicName:
+        type: string
+        read_only: true 
+      rosTopicType:
+        type: string
+        read_only: true 
+  ROStoMOOS:
+    __map_toMOOS:
+      moosMsgName:
+        type: string 
+        read_only: true 
+      rosTopicType:
+        type: string 
+        read_only: true 
+      

@@ -34,10 +34,13 @@
 #define _MOOS_NODE_H_
 
 #include <MOOS/libMOOS/App/MOOSApp.h>
-#include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
 #include <vector>
 #include "MsgContainer.h"
-#include <string.h>
+#include <string>
+#include <memory>
+
+using namespace std;
 
 class MOOSNode : public CMOOSApp { 
 public:
@@ -45,10 +48,10 @@ public:
 	MOOSNode();
 	virtual ~MOOSNode();
 
-	bool toMOOS(std::string moosName, double data);
-	bool toMOOS(std::string moosName, std::string myString);
-    bool toMOOSBinaryString(std::string moosName, std::string myString);
-	void AssignPublisher(vector<MsgContainer> *msgVec);
+	bool toMOOS(const string moosName, const double data);
+	bool toMOOS(const string moosName, const string myString);
+    bool toMOOSBinary(const string moosName, const vector<uint8_t> &bin);
+	void AssignPublisher(vector<shared_ptr<MsgContainer>> &msgVec);
 
 protected:
 	double appTick;
@@ -66,10 +69,10 @@ protected:
 	//called when we are starting up..
 	bool OnStartUp();
 
-void DoRegistrations();
+	void DoRegistrations();
 
 private:
-	vector<MsgContainer> *msgVec;
+	vector<shared_ptr<MsgContainer>> _msgVec;
 
 };
 #endif

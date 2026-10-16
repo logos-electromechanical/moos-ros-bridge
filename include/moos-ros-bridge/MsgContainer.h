@@ -30,39 +30,93 @@
  * MOOS Database and a ROS Core.  
  */
 
-#ifndef _MSG_CONTAINER_H_ 
-#define _MSG_CONTAINER_H_
+#pragma once 
 
-#include "ros/ros.h"
-#include <string.h>
+#include "rclcpp/rclcpp.hpp"
+#include <string>
 
 using namespace std;
 
-class MsgContainer{
-public:
-	// from MOOS to ROS
-	MsgContainer(ros::Publisher new_pub, string new_moosName, string new_rosName, string new_moosType, string new_rosType){
-		pub      = new_pub;
-		moosName = new_moosName;
-		rosName  = new_rosName;
-		moosType = new_moosType;
-		rosType  = new_rosType;
-	}
-
-	// from ROS to MOOS
-	MsgContainer(ros::Subscriber new_sub, string new_moosName, string new_rosName){
-		sub      = new_sub;
-		moosName = new_moosName;
-		rosName  = new_rosName;
-	}
-
-	ros::Publisher pub;
-	ros::Subscriber sub;
-
-	string moosName;
-	string rosName;
-	string moosType;
-	string rosType;
+// The message direction for a particular message container
+enum class BridgeDirection
+{
+	toROS,
+	toMOOS
 };
 
-#endif
+// Supported ROS types
+enum class ROSType 
+{
+	Int32,
+	Int64,
+	Float32,
+	Float64,
+	String,
+	UInt8Array,
+	NONE
+};
+
+// Supported MOOS types
+enum class MOOSType 
+{
+	DOUBLE,
+	STRING,
+	BINARY,
+	NONE
+};
+
+// The intent here is that we can have a base class with some type erasure business going on but enough metadata to static_cast a pointer to an 
+// instance. 
+class MsgContainer
+{
+public:
+	const string &moosName() { return _moosName; }
+	const string &rosName() { return _rosName; }
+	const MOOSType moosType() { return _moosType; }
+	const ROSType rosType() { return _rosType; }
+	const BridgeDirection dir() { return _dir; }
+
+protected:
+	MsgContainer(const string new_moosName, const string new_rosName, const MOOSType new_moosType, const ROSType new_rosType, const BridgeDirection dir) :
+		_moosName(new_moosName), _rosName(new_rosName), _moosType(new_moosType), _rosType(new_rosType), _dir(dir)
+	{}
+
+	BridgeDirection _dir;
+	
+private:
+	string _moosName;
+	string _rosName;
+	MOOSType _moosType;
+	ROSType _rosType;
+};
+
+template<class T>
+class MsgContainerPub : public MsgContainer
+{
+public:
+	// from MOOS to ROS
+	MsgContainerPub(const string new_moosName, const string new_rosName, const MOOSType new_moosType, const ROSType new_rosType, typename rclcpp::Publisher<T>::SharedPtr new_pub) :
+		MsgContainer(new_moosName, new_rosName, new_moosType, new_rosType, BridgeDirection::toROS), pub(new_pub)
+	{}
+	~MsgContainerPub() {}
+
+	typename rclcpp::Publisher<T>::SharedPtr pub;
+
+};
+
+template<class T>
+class MsgContainerSub : public MsgContainer
+{
+public:
+
+	// from ROS to MOOS
+	MsgContainerSub(string new_moosName, string new_rosName, const MOOSType new_moosType, const ROSType new_rosType, typename rclcpp::Subscription<T>::SharedPtr new_sub)  :
+		MsgContainer(new_moosName, new_rosName, new_moosType, new_rosType, BridgeDirection::toMOOS), sub(new_sub)
+	{}
+	~MsgContainerSub() {}
+
+	typename rclcpp::Subscription<T>::SharedPtr sub;
+};
+
+
+

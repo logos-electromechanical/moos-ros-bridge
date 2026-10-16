@@ -15,6 +15,8 @@ paper:
         organization={IEEE}
     }
 
+Ported to ROS2 Jazzy Jalisco by Pierce Nichols on behalf of Ladon Robotics
+
 ## Build Instructions
 
 ### Install Dependencies
@@ -26,21 +28,23 @@ package manager:
 
 ## Build in a catkin workspace
 
-1. Setup a ROS catkin workspace, if you don't have one already:
+1. Setup a ROS2 workspace, if you don't have one already:
 
-        $ source /opt/ros/kinetic/setup.sh
-        $ mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/
-        $ catkin_make
+        $ source /opt/ros/jazzy/setup.sh
+        $ mkdir -p ~/ros2_ws/src && cd ~/ros2_ws/
+        $ colcon build
 
-2. Clone this repo into into `~/catkin_ws/src`:
+2. Clone this repo into into `~/ros2_ws/src`:
 
-        $ cd ~/catkin_ws/src
-        $ git clone https://github.com/SyllogismRXS/moos-ros-bridge.git
+        $ cd ~/ros2_ws/src
+        $ git clone https://github.com/logos-electromechanical/moos-ros-bridge.git
+        $ cd moos-ros-bridge
+        $ git checkout ros2
 
 3. Build it:
 
-        $ cd ~/catkin_ws
-        $ catkin_make
+        $ cd ~/ros2_ws
+        $ colcon build
         $ source ./devel/setup.sh
 
 # Run an Example

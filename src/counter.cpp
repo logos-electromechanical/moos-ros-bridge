@@ -1,30 +1,37 @@
-#include "ros/ros.h"
-#include "std_msgs/Int32.h"
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/int32.hpp"
 
-#include <sstream>
+#include <chrono>
+
+using namespace std::chrono_literals;
+
+class Counter : public rclcpp::Node
+{
+     public:
+          Counter() : Node("counter"), count(0)
+          {
+               pub = this->create_publisher<std_msgs::msg::Int32>("ros_counter", 10);
+               auto timer_cb =
+                    [this]() -> void {
+                         auto msg = std_msgs::msg::Int32();
+                         msg.data = count;
+                         this->pub->publish(msg);
+                    };
+               timer = this->create_wall_timer(1000ms, timer_cb);
+          }
+
+     private:
+          rclcpp::TimerBase::SharedPtr timer;
+          rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr pub;
+          int32_t count;
+
+};
 
 int main(int argc, char **argv)
 {
-     ros::init(argc, argv, "counter");
-     ros::NodeHandle n;
-     ros::Publisher chatter_pub = n.advertise<std_msgs::Int32>("CounterFromROS", 1000);
-
-     ros::Rate loop_rate(1);
-
-     int count = 0;
-     std_msgs::Int32 msg;
-     while (ros::ok()) {
-
-	  msg.data = count;
-
-	  chatter_pub.publish(msg);
-
-	  ros::spinOnce();
-
-	  loop_rate.sleep();
-	  ++count;
-     }
-
+     rclcpp::init(argc, argv);
+     rclcpp::spin(std::make_shared<Counter>());
+     rclcpp::shutdown();
 
      return 0;
 }

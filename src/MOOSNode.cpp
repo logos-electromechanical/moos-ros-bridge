@@ -33,86 +33,126 @@
 #include <moos-ros-bridge/MOOSNode.h>
 #include <moos-ros-bridge/MsgContainer.h>
 
-#include "ros/ros.h"
-#include "std_msgs/Int32.h"
-#include "std_msgs/Int64.h"
-#include "std_msgs/Float32.h"
-#include "std_msgs/Float64.h"
-#include "std_msgs/String.h"
+#include "std_msgs/msg/int32.hpp"
+#include "std_msgs/msg/int64.hpp"
+#include "std_msgs/msg/float32.hpp"
+#include "std_msgs/msg/float64.hpp"
+#include "std_msgs/msg/string.hpp"
+#include "std_msgs/msg/u_int8_multi_array.hpp"
 #include <vector>
 
 //default constructor
 MOOSNode::MOOSNode()
-{
-}
+{}
 
-void MOOSNode::AssignPublisher(vector<MsgContainer> *new_msgVec){
-     msgVec = new_msgVec;
+void MOOSNode::AssignPublisher(vector<shared_ptr<MsgContainer>> &msgVec)
+{
+	_msgVec = msgVec;
 }
 
 //default (virtual) destructor
-MOOSNode::~MOOSNode(){
+MOOSNode::~MOOSNode()
+{}
+
+bool MOOSNode::toMOOS(std::string moosName, double data)
+{
+	m_Comms.Notify(moosName, data, MOOSTime());
+	return true;
 }
 
-bool MOOSNode::toMOOS(std::string moosName, double data){
-     m_Comms.Notify(moosName,data,MOOSTime());
-     return true;
-}
-
-bool MOOSNode::toMOOS(std::string moosName, std::string myString){
-     m_Comms.Notify(moosName,myString,MOOSTime());
-     return true;
+bool MOOSNode::toMOOS(std::string moosName, std::string myString)
+{
+	m_Comms.Notify(moosName, myString, MOOSTime());
+	return true;
 }
 
 //Support for binary-string from ROS to MOOS
-bool MOOSNode::toMOOSBinaryString(std::string moosName, std::string myString){
-    m_Comms.Notify(moosName,(void *)myString.c_str(),myString.size(),MOOSTime());
+
+bool MOOSNode::toMOOSBinary(const string moosName, const vector<uint8_t> &bin)
+{
+    m_Comms.Notify(moosName, (void *)bin.data(), bin.size(), MOOSTime());
 	return true;
 }
 
 bool MOOSNode::OnNewMail (MOOSMSG_LIST &NewMail){
-     MOOSMSG_LIST::iterator p;
-     for( p = NewMail.begin() ; p != NewMail.end() ; p++ ){
+	MOOSMSG_LIST::iterator p;
+	for( p = NewMail.begin() ; p != NewMail.end() ; p++ ) 
+	{
 
-	  CMOOSMsg & rMsg = *p;
+		CMOOSMsg & rMsg = *p;
 
-	  //Every time a new type is added, a new IF statement is
-	  //required here to handle the conversion
+		//Every time a new type is added, a new IF statement is
+		//required here to handle the conversion
 
-	  vector<MsgContainer>::iterator it;
+		vector<shared_ptr<MsgContainer>>::iterator it;
 
-	  for ( it = msgVec->begin() ; it < msgVec->end() ; it++ ){
-	       if(MOOSStrCmp(rMsg.GetKey(), it->moosName)){
-		    if(rMsg.IsDouble() && (strcmp(it->moosType.c_str(),"Double") == 0) ){
-			 if( it->rosType == "std_msgs/Float64"){
-			      std_msgs::Float64 dataFloat64;
-			      dataFloat64.data = rMsg.GetDouble();
-			      it->pub.publish(dataFloat64);
-			 }else if( it->rosType == "std_msgs/Float32"){
-			      std_msgs::Float32 dataFloat32;
-			      dataFloat32.data = rMsg.GetDouble();
-			      it->pub.publish(dataFloat32);
-			 }else if( it->rosType == "std_msgs/Int32"){
-			      std_msgs::Int32 dataInt32;
-			      dataInt32.data = rMsg.GetDouble();
-			      it->pub.publish(dataInt32);
-			 }else if( it->rosType == "std_msgs/Int64"){
-			      std_msgs::Int64 dataInt64;
-			      dataInt64.data = rMsg.GetDouble();
-			      it->pub.publish(dataInt64);
-			 }
-		    }
+		for ( it = _msgVec.begin() ; it < _msgVec.end() ; it++ )
+		{
+			if((it->get()->dir() == BridgeDirection::toROS) && MOOSStrCmp(rMsg.GetKey(), it->get()->moosName()))
+			{
+				if(rMsg.IsDouble() && (it->get()->moosType() == MOOSType::DOUBLE))
+				{
+					switch (it->get()->rosType())
+					{
+						case (ROSType::Float32):
+						{
+							auto msg = std_msgs::msg::Float32();
+							msg.data = static_cast<float>(rMsg.GetDouble());
+							static_cast<MsgContainerPub<std_msgs::msg::Float32>*>(it->get())->pub->publish(msg);
+							break;
+						}
+						case (ROSType::Float64):
+						{
+							auto msg = std_msgs::msg::Float64();
+							msg.data = rMsg.GetDouble();
+							static_cast<MsgContainerPub<std_msgs::msg::Float64>*>(it->get())->pub->publish(msg);
+							break;
+						}
+						case (ROSType::Int32):
+						{
+							auto msg = std_msgs::msg::Int32();
+							msg.data = static_cast<int32_t>(rMsg.GetDouble());
+							static_cast<MsgContainerPub<std_msgs::msg::Int32>*>(it->get())->pub->publish(msg);
+							break;
+						}
+						case (ROSType::Int64):
+						{
+							auto msg = std_msgs::msg::Int64();
+							msg.data = static_cast<int64_t>(rMsg.GetDouble());
+							static_cast<MsgContainerPub<std_msgs::msg::Int64>*>(it->get())->pub->publish(msg);
+							break;
+						}
+						case (ROSType::String):
+						{
+							auto msg = std_msgs::msg::String();
+							msg.data = std::to_string(rMsg.GetDouble());
+							static_cast<MsgContainerPub<std_msgs::msg::String>*>(it->get())->pub->publish(msg);
+							break;
+						}
+						default:
+						{}
+					}
+				}
 
-		    if(rMsg.IsString() && (it->moosType  == "String")){
-			 std_msgs::String myString;
-			 myString.data = rMsg.GetString();
-			 it->pub.publish(myString);
-		    }
+				else if(rMsg.IsString() && (it->get()->moosType() == MOOSType::STRING) && (it->get()->rosType() == ROSType::String))
+				{
+					auto msg = std_msgs::msg::String();
+					msg.data = rMsg.GetString();
+					static_cast<MsgContainerPub<std_msgs::msg::String>*>(it->get())->pub->publish(msg);
+				}
+
+				else if(rMsg.IsDataType(MOOS_BINARY_STRING) && (it->get()->moosType() == MOOSType::BINARY) && (it->get()->rosType() == ROSType::UInt8Array))
+				{
+					// Not sure this works correctly with true binary arrays -- testing required
+					auto msg = std_msgs::msg::UInt8MultiArray();
+					memcpy(msg.data.data(), rMsg.GetString().c_str(), rMsg.GetString().size());
+					static_cast<MsgContainerPub<std_msgs::msg::UInt8MultiArray>*>(it->get())->pub->publish(msg);
+				}
 
 	       }//end if MOOSStrCmp
-	  }//end Iterator for
-     }//end Mailbox for
-     return true;
+	  	}//end Iterator for
+	}//end Mailbox for
+	return true;
 }
 
 /*
@@ -122,17 +162,15 @@ bool MOOSNode::OnNewMail (MOOSMSG_LIST &NewMail){
 */
 bool MOOSNode::OnConnectToServer()
 {
-     DoRegistrations();
-     return true;
+	DoRegistrations();
+	return true;
 }
 
 /*
   Called by the base class periodically. This is where you place code
   which does the work of the application
 */
-bool MOOSNode::Iterate(){
-     return true;
-}
+bool MOOSNode::Iterate() { return true; }
 
 /*
    called by the base class before the first :: Iterate is called . Place
@@ -141,32 +179,34 @@ bool MOOSNode::Iterate(){
 */
 bool MOOSNode::OnStartUp()
 {
-     appTick = 1;
-     commsTick = 1;
+	appTick = 1;
+	commsTick = 1;
 
-     if(!m_MissionReader.GetConfigurationParam("AppTick",appTick)){
-	  MOOSTrace("Warning, AppTick not set.\n");
-     }
+	if(!m_MissionReader.GetConfigurationParam("AppTick",appTick)){
+	MOOSTrace("Warning, AppTick not set.\n");
+	}
 
-     if(!m_MissionReader.GetConfigurationParam("CommsTick",commsTick)){
-	  MOOSTrace("Warning, CommsTick not set.\n");
-     }
+	if(!m_MissionReader.GetConfigurationParam("CommsTick",commsTick)){
+	MOOSTrace("Warning, CommsTick not set.\n");
+	}
 
-     SetAppFreq(appTick);
-     SetCommsFreq(commsTick);
+	SetAppFreq(appTick);
+	SetCommsFreq(commsTick);
 
-     DoRegistrations();
+	DoRegistrations();
 
-     return true;
+	return true;
 }
 
-void MOOSNode::DoRegistrations(){
-     vector<MsgContainer>::iterator it;
-     for ( it = msgVec->begin() ; it < msgVec->end() ; it++ ){
-	  m_Comms.Register(it->moosName,0);
+void MOOSNode::DoRegistrations()
+{
+	vector<shared_ptr<MsgContainer>>::iterator it;
+	for ( it = _msgVec.begin() ; it < _msgVec.end() ; it++ )
+	{
+		m_Comms.Register(it->get()->moosName(),0);
 
-	  char buf[512];
-	  sprintf(buf,"Subscribing to %s\n",it->moosName.c_str());
-	  MOOSTrace(buf);
-     }
+		char buf[512];
+		sprintf(buf,"Subscribing to %s\n",it->get()->moosName().c_str());
+		MOOSTrace(buf);
+	}
 }

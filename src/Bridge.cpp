@@ -31,7 +31,7 @@
  */
 
 // Basic ROS Include
-#include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
 
 // Standard Library Headers
 #include <sstream>
@@ -43,45 +43,35 @@
 #include <vector>
 //#include <map>
 #include <string>
+#include <memory>
 
 // MOOS Includes
 #include <MOOS/libMOOS/App/MOOSApp.h>
 #include <moos-ros-bridge/MOOSNode.h>
 #include <moos-ros-bridge/MsgContainer.h>
 
-// BOOST Includes
-#include <boost/thread.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-
-// RapidXML Parser
-#include "rapidxml/rapidxml.hpp"
-#include "rapidxml/rapidxml_print.hpp"
-
 // ROS TYPES
 // Note: Add includes here to handle new data type conversion
-#include "std_msgs/Int32.h"
-#include "std_msgs/Int64.h"
-#include "std_msgs/Float32.h"
-#include "std_msgs/Float64.h"
-#include "std_msgs/String.h"
+#include "std_msgs/msg/int32.h"
+#include "std_msgs/msg/int64.h"
+#include "std_msgs/msg/float32.h"
+#include "std_msgs/msg/float64.h"
+#include "std_msgs/msg/string.h"
+#include "std_msgs/msg/u_int8_multi_array.h"
 
 #define FAIL 1
 #define SUCCESS 0
 
 //Declare namespaces in use
-using namespace rapidxml;
 using namespace std;
-
-vector<MsgContainer> subVec;
 
 /*
  * MOOS to ROS Interface
  */
 MOOSNode MOOSApp;
+
 void MOOSInit(const char * sMissionFile){
      const char * sMOOSName = "MOOS_ROS_BRIDGE";
-
      MOOSApp.Run(sMOOSName, sMissionFile);
 }
 
