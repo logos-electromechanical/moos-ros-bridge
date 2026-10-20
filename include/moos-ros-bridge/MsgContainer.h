@@ -3,13 +3,14 @@
  * 
  * @file
  *
+ * @file
+ *
  * @author Kevin DeMarco <kevin.demarco@gtri.gatech.edu>
+ * @author Pierce Nichols <pierce@ladonrobotics.com>
  *
- * @version 1.0
+ * @version 2.0
  *
- * @date May 25th, 2012
- * 
- * @section LICENSE
+ * @date Oct 19 2026
  * 
  * Georgia Tech Research Institute (GTRI)
  *
@@ -53,6 +54,7 @@ enum class ROSType
 	Float64,
 	String,
 	UInt8Array,
+	ByteArray,
 	NONE
 };
 

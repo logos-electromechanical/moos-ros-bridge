@@ -39,6 +39,7 @@
 #include "std_msgs/msg/float64.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/u_int8_multi_array.hpp"
+#include "std_msgs/msg/byte_multi_array.hpp"
 #include <vector>
 
 //default constructor
@@ -147,6 +148,14 @@ bool MOOSNode::OnNewMail (MOOSMSG_LIST &NewMail){
 					auto msg = std_msgs::msg::UInt8MultiArray();
 					memcpy(msg.data.data(), rMsg.GetString().c_str(), rMsg.GetString().size());
 					static_cast<MsgContainerPub<std_msgs::msg::UInt8MultiArray>*>(it->get())->pub->publish(msg);
+				}
+
+				else if(rMsg.IsDataType(MOOS_BINARY_STRING) && (it->get()->moosType() == MOOSType::BINARY) && (it->get()->rosType() == ROSType::ByteArray))
+				{
+					// Not sure this works correctly with true binary arrays -- testing required
+					auto msg = std_msgs::msg::ByteMultiArray();
+					memcpy(msg.data.data(), rMsg.GetString().c_str(), rMsg.GetString().size());
+					static_cast<MsgContainerPub<std_msgs::msg::ByteMultiArray>*>(it->get())->pub->publish(msg);
 				}
 
 	       }//end if MOOSStrCmp

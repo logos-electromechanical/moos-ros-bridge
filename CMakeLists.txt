@@ -54,6 +54,7 @@ generate_parameter_library(
 add_executable(bridge
   src/MOOSNode.cpp
   src/Bridge.cpp
+  src/main.cpp
   )
 
 # Specify libraries to link a library or executable target against

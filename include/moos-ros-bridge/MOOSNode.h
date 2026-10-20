@@ -4,10 +4,11 @@
  * @file
  *
  * @author Kevin DeMarco <kevin.demarco@gtri.gatech.edu>
+ * @author Pierce Nichols <pierce@ladonrobotics.com>
  *
- * @version 1.0
+ * @version 2.0
  *
- * @date May 25th, 2012
+ * @date Oct 19 2026
  * 
  * @section LICENSE
  * 

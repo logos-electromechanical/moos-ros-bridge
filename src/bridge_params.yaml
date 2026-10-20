@@ -4,6 +4,11 @@ bridge_params:
     default_value: ""
     read_only: true
     description: "Path to MOOS mission file"
+  MOOSname:
+    type: string
+    default_value: "moos_to_ros_bridge"
+    read_only: true 
+    description: "Name of MOOS node"
   toROS:
     type: string_array
     default_value: []
@@ -16,12 +21,19 @@ bridge_params:
     description: "The list of ROS topics to publish to MOOS"
   MOOStoROS:
     __map_toROS:
+      moosMsgName:
+        type: string 
+        read_only: true 
       rosTopicName:
         type: string
         read_only: true 
       rosTopicType:
         type: string
         read_only: true 
+      rosQoS:
+        type: int
+        default_value: 10
+        read_only: true
   ROStoMOOS:
     __map_toMOOS:
       moosMsgName:
@@ -30,4 +42,11 @@ bridge_params:
       rosTopicType:
         type: string 
         read_only: true 
+      rosTopicName:
+        type: string
+        read_only: true 
+      rosQoS:
+        type: int
+        default_value: 10
+        read_only: true
       
