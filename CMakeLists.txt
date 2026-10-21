@@ -101,7 +101,12 @@ target_compile_features(counter PUBLIC c_std_99 cxx_std_17)
 ## Install ##
 #############
 
-install(TARGETS bridge counter DESTINATION lib/${PROJECT_NAME})
+install(TARGETS 
+  bridge 
+  counter 
+  DESTINATION 
+  lib/${PROJECT_NAME})
+
 
 #############
 ## Testing ##
@@ -115,3 +120,5 @@ install(TARGETS bridge counter DESTINATION lib/${PROJECT_NAME})
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+ament_package()
