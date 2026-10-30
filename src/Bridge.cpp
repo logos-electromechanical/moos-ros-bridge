@@ -40,6 +40,8 @@
 #include "std_msgs/msg/u_int8_multi_array.hpp"
 #include "std_msgs/msg/byte_multi_array.hpp"
 
+#include <stdexcept>
+
 
 template <typename T>
 void MoosRosBridge::double_cb(const T &msg, const std::string moos_name)
@@ -59,10 +61,17 @@ void MoosRosBridge::binary_cb(const T &msg, const std::string moos_name)
     mMOOSApp.toMOOSBinary(moos_name, msg.data);
 }
 
+void MoosRosBridge::timer_cb()
+{
+    if (stop) { rclcpp::shutdown(); }
+}
+
 void MoosRosBridge::init()
 {
+    RCLCPP_INFO(this->get_logger(), "Initializing bridge");
     for (const auto& key : mParams.toROS)
     {
+        RCLCPP_INFO(this->get_logger(), "toROS key %s", key.c_str());
         if (mParams.MOOStoROS.toROS_map.at(key).rosTopicType == "std_msgs::msg::Float32")
         { 
             mPubVec.push_back(std::shared_ptr<MsgContainer>(new MsgContainerPub<std_msgs::msg::Float32>(
@@ -153,10 +162,18 @@ void MoosRosBridge::init()
                     mParams.MOOStoROS.toROS_map.at(key).rosQoS
                 )
             )));
+        } 
+        else
+        {
+            throw std::runtime_error("Invalid type specified for MOOS to ROS");
         }
     }
+
+
+
     for (const auto& key : mParams.toMOOS)
     {
+        RCLCPP_INFO(this->get_logger(), "toMOOS key %s", key.c_str());
         if (mParams.ROStoMOOS.toMOOS_map.at(key).rosTopicType == "std_msgs::msg::Float32")
         {
             mSubVec.push_back(std::shared_ptr<MsgContainer>(new MsgContainerSub<std_msgs::msg::Float32>(
@@ -276,11 +293,16 @@ void MoosRosBridge::init()
                 )
             )));
         }
+        else
+        {
+            throw std::runtime_error("Invalid type specified for MOOS to ROS");
+        }
     }
 }
 
 void MoosRosBridge::MOOSInit()
 {
+    mMOOSApp.AssignPublisher(mPubVec);
     mMOOSApp.Run(mParams.MOOSname.c_str(), mParams.missionFile.c_str());
 }
 

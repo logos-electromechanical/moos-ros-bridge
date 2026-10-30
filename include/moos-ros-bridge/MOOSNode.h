@@ -53,6 +53,9 @@ public:
 	bool toMOOS(const string moosName, const string myString);
     bool toMOOSBinary(const string moosName, const vector<uint8_t> &bin);
 	void AssignPublisher(vector<shared_ptr<MsgContainer>> &msgVec);
+	void setNode(rclcpp::Node *node) { _node = node; }
+
+	bool stop;
 
 protected:
 	double appTick;
@@ -74,6 +77,7 @@ protected:
 
 private:
 	vector<shared_ptr<MsgContainer>> _msgVec;
+	rclcpp::Node *_node;
 
 };
 #endif

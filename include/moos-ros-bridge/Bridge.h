@@ -36,6 +36,7 @@
 #include <vector>
 #include <thread>
 #include <functional>
+#include <chrono>
 
 // MOOS Includes
 #include <MOOS/libMOOS/App/MOOSApp.h>
@@ -45,22 +46,37 @@
 // parameters
 #include "moos-ros-bridge/bridge_params.hpp"
 
+using namespace std::chrono_literals;
+
 class MoosRosBridge : public rclcpp::Node
 {
 public:
     MoosRosBridge() : Node ("moos_ros_bridge")
     {
+        RCLCPP_INFO(this->get_logger(), "Starting bridge");
         mParamListener = std::make_shared<bridge_params::ParamListener>(this);
         mParams = mParamListener->get_params();
+        RCLCPP_INFO(this->get_logger(), "Params loaded");
         init();
+        timer = this->create_wall_timer(500ms, std::bind(&MoosRosBridge::timer_cb, this));
+        mMOOSApp.setNode(this);
         mMOOSthread = std::make_unique<std::thread>(
             std::bind(&MoosRosBridge::MOOSInit, this));
+
+        stop = false;
     }
 
     ~MoosRosBridge() 
     {
-        if (mMOOSthread) { mMOOSthread->join(); }
+        if (mMOOSthread) 
+        { 
+            RCLCPP_INFO(this->get_logger(), "ROS node exiting, taking MOOS with it");
+            mMOOSApp.stop = true;
+            mMOOSthread->join(); 
+        }
     }
+
+    bool stop;
 
 private: 
     // methods
@@ -76,9 +92,14 @@ private:
     template <typename T>
     void binary_cb(const T &msg, const std::string moos_name);
 
+    void timer_cb();
+
     // publishers & subscribers
     std::vector<shared_ptr<MsgContainer>> mPubVec;
     std::vector<shared_ptr<MsgContainer>> mSubVec;
+
+    // timer 
+    rclcpp::TimerBase::SharedPtr timer;
 
     // parameters
     std::shared_ptr<bridge_params::ParamListener> mParamListener;

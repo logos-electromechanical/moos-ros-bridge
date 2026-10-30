@@ -1,0 +1,19 @@
+bridge:
+  ros__parameters:
+    MOOSname: "ros_bridge"
+    toROS:
+      - "moos_count"
+    toMOOS:
+      - "ros_count"
+    MOOStoROS:
+      moos_count:
+        moosMsgName: "MOOSCNT"
+        moosMsgType: "DOUBLE"
+        rosTopicName: "/moos_count"
+        rosTopicType: "std_msgs::msg::Int32"
+    ROStoMOOS:
+      ros_count:
+        moosMsgName: "ROSCNT"
+        moosMsgType: "DOUBLE"
+        rosTopicName: "/ros_counter"
+        rosTopicType: "std_msgs::msg::Int32"

@@ -1,0 +1,18 @@
+%YAML 1.2
+---
+launch:
+  - node:
+      pkg: "moos-ros-bridge"
+      exec: "bridge"
+      name: "bridge"
+      param:
+        # - from: "$(ros2 pkg prefix moos-ros-bridge)/share/moos-ros-bridge/config/system_demo_params.yaml"
+        - from: "$(find-pkg-share moos-ros-bridge)/config/system_demo_params.yaml"
+        -
+          name: "missionFile" 
+          value: "$(find-pkg-share moos-ros-bridge)/config/bridge.moos"
+    
+  - node:
+      pkg: "moos-ros-bridge"
+      exec: "counter"
+      name: "counter"

@@ -6,7 +6,7 @@
 
 ServerHost = localhost
 ServerPort = 9000
-Simulator  = true
+//Simulator  = true
 
 Community    = moosros
 MOOSTimeWarp = 1
@@ -16,15 +16,23 @@ Processconfig = ANTLER
   MSBetweenLaunches = 100
    
   Run = MOOSDB           @ NewConsole = false
-  Run = MOOS_ROS_BRIDGE  @ NewConsole = false
-  Run = uMS              @ NewConsole = false 
+//  Run = MOOS_ROS_BRIDGE  @ NewConsole = false
+  Run = uMS              @ NewConsole = true 
+  Run = pXRelay          @ NewConsole = false
 }
-
 
 ProcessConfig = MOOS_ROS_BRIDGE
 {
   AppTick    = 1
   CommsTick  = 20
+}
+
+ProcessConfig = pXRelay
+{
+  AppTick    = 10
+  CommsTick  = 10
+  OUTGOING_VAR = MOOSCNT
+  INCOMING_VAR = ROSCNT
 }
 
 ProcessConfig = uMS

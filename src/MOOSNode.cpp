@@ -41,10 +41,13 @@
 #include "std_msgs/msg/u_int8_multi_array.hpp"
 #include "std_msgs/msg/byte_multi_array.hpp"
 #include <vector>
+#include <iostream>
 
 //default constructor
 MOOSNode::MOOSNode()
-{}
+{
+	stop = false;
+}
 
 void MOOSNode::AssignPublisher(vector<shared_ptr<MsgContainer>> &msgVec)
 {
@@ -82,6 +85,8 @@ bool MOOSNode::OnNewMail (MOOSMSG_LIST &NewMail){
 
 		CMOOSMsg & rMsg = *p;
 
+		RCLCPP_INFO(_node->get_logger(), "Received message named %s\n", rMsg.GetKey().c_str());
+
 		//Every time a new type is added, a new IF statement is
 		//required here to handle the conversion
 
@@ -91,6 +96,7 @@ bool MOOSNode::OnNewMail (MOOSMSG_LIST &NewMail){
 		{
 			if((it->get()->dir() == BridgeDirection::toROS) && MOOSStrCmp(rMsg.GetKey(), it->get()->moosName()))
 			{
+				RCLCPP_INFO(_node->get_logger(), "Message %s matched\n", rMsg.GetKey().c_str());
 				if(rMsg.IsDouble() && (it->get()->moosType() == MOOSType::DOUBLE))
 				{
 					switch (it->get()->rosType())
@@ -179,7 +185,9 @@ bool MOOSNode::OnConnectToServer()
   Called by the base class periodically. This is where you place code
   which does the work of the application
 */
-bool MOOSNode::Iterate() { return true; }
+bool MOOSNode::Iterate() { 
+	return not stop; 
+}
 
 /*
    called by the base class before the first :: Iterate is called . Place
@@ -209,10 +217,12 @@ bool MOOSNode::OnStartUp()
 
 void MOOSNode::DoRegistrations()
 {
+	MOOSTrace("Registering messages.\n");
 	vector<shared_ptr<MsgContainer>>::iterator it;
 	for ( it = _msgVec.begin() ; it < _msgVec.end() ; it++ )
 	{
 		m_Comms.Register(it->get()->moosName(),0);
+		RCLCPP_INFO(_node->get_logger(), "Registering for %s\n", it->get()->moosName().c_str());
 
 		char buf[512];
 		sprintf(buf,"Subscribing to %s\n",it->get()->moosName().c_str());
