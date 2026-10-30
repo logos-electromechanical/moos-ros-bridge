@@ -27,8 +27,9 @@
  * @section DESCRIPTION
  *
  * The MOOS ROS Bridge allows for communication between a 
- * MOOS Database and a ROS Core.  
+ * MOOS Database and a ROS2 system.  
  */
+
 #pragma once
 
 #include "rclcpp/rclcpp.hpp"

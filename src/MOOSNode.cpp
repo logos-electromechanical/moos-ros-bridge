@@ -66,6 +66,7 @@ bool MOOSNode::toMOOS(std::string moosName, double data)
 
 bool MOOSNode::toMOOS(std::string moosName, std::string myString)
 {
+	RCLCPP_INFO(_node->get_logger(), "Sending string %s to %s", myString.c_str(), moosName.c_str());
 	m_Comms.Notify(moosName, myString, MOOSTime());
 	return true;
 }
@@ -162,6 +163,13 @@ bool MOOSNode::OnNewMail (MOOSMSG_LIST &NewMail){
 					auto msg = std_msgs::msg::ByteMultiArray();
 					memcpy(msg.data.data(), rMsg.GetString().c_str(), rMsg.GetString().size());
 					static_cast<MsgContainerPub<std_msgs::msg::ByteMultiArray>*>(it->get())->pub->publish(msg);
+				}
+
+				else 
+				{ 
+					RCLCPP_INFO(_node->get_logger(), "Message %s failed type match\n", rMsg.GetKey().c_str()); 
+					RCLCPP_INFO(_node->get_logger(), "Message %s IsDouble() %d\n", rMsg.GetKey().c_str(), rMsg.IsDouble()); 
+					RCLCPP_INFO(_node->get_logger(), "Message %s IsString() %d\n", rMsg.GetKey().c_str(), rMsg.IsString()); 
 				}
 
 	       }//end if MOOSStrCmp

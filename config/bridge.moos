@@ -18,7 +18,7 @@ Processconfig = ANTLER
   Run = MOOSDB           @ NewConsole = false
 //  Run = MOOS_ROS_BRIDGE  @ NewConsole = false
   Run = uMS              @ NewConsole = true 
-  Run = pXRelay          @ NewConsole = false
+  Run = pEchoVar         @ NewConsole = false 
 }
 
 ProcessConfig = MOOS_ROS_BRIDGE
@@ -27,12 +27,15 @@ ProcessConfig = MOOS_ROS_BRIDGE
   CommsTick  = 20
 }
 
-ProcessConfig = pXRelay
+ProcessConfig = pEchoVar
 {
   AppTick    = 10
   CommsTick  = 10
-  OUTGOING_VAR = MOOSCNT
-  INCOMING_VAR = ROSCNT
+  echo = ROSCNT32 -> MOOSCNT32
+  echo = ROSCNT64 -> MOOSCNT64
+  echo = ROSCNTF32 -> MOOSCNTF32
+  echo = ROSCNTF64 -> MOOSCNTF64
+  echo = ROSCNTSTR -> MOOSCNTSTR
 }
 
 ProcessConfig = uMS

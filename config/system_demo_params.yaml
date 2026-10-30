@@ -2,18 +2,66 @@ bridge:
   ros__parameters:
     MOOSname: "ros_bridge"
     toROS:
-      - "moos_count"
+      - "moos32"
+      - "moos64"
+      - "moosf32"
+      - "moosf64"
+      - "moosstr"
     toMOOS:
-      - "ros_count"
+      - "count32"
+      - "count64"
+      - "countf32"
+      - "countf64"
+      - "countstr"
     MOOStoROS:
-      moos_count:
-        moosMsgName: "MOOSCNT"
+      moos32:
+        moosMsgName: "MOOSCNT32"
         moosMsgType: "DOUBLE"
-        rosTopicName: "/moos_count"
+        rosTopicName: "/moos32"
         rosTopicType: "std_msgs::msg::Int32"
+      moos64:
+        moosMsgName: "MOOSCNT64"
+        moosMsgType: "DOUBLE"
+        rosTopicName: "/moos64"
+        rosTopicType: "std_msgs::msg::Int64"
+      moosf32:
+        moosMsgName: "MOOSCNTF32"
+        moosMsgType: "DOUBLE"
+        rosTopicName: "/moosf32"
+        rosTopicType: "std_msgs::msg::Float32"
+      moosf64:
+        moosMsgName: "MOOSCNTF64"
+        moosMsgType: "DOUBLE"
+        rosTopicName: "/moosf64"
+        rosTopicType: "std_msgs::msg::Float64"
+      moosstr:
+        moosMsgName: "MOOSCNTSTR"
+        moosMsgType: "STRING"
+        rosTopicName: "/moosstr"
+        rosTopicType: "std_msgs::msg::String"
     ROStoMOOS:
-      ros_count:
-        moosMsgName: "ROSCNT"
+      count32:
+        moosMsgName: "ROSCNT32"
         moosMsgType: "DOUBLE"
-        rosTopicName: "/ros_counter"
+        rosTopicName: "/count32"
         rosTopicType: "std_msgs::msg::Int32"
+      count64:
+        moosMsgName: "ROSCNT64"
+        moosMsgType: "DOUBLE"
+        rosTopicName: "/count64"
+        rosTopicType: "std_msgs::msg::Int64"
+      countf32:
+        moosMsgName: "ROSCNTF32"
+        moosMsgType: "DOUBLE"
+        rosTopicName: "/countf32"
+        rosTopicType: "std_msgs::msg::Float32"
+      countf64:
+        moosMsgName: "ROSCNTF64"
+        moosMsgType: "DOUBLE"
+        rosTopicName: "/countf64"
+        rosTopicType: "std_msgs::msg::Float64"
+      countstr:
+        moosMsgName: "ROSCNTSTR"
+        moosMsgType: "STRING"
+        rosTopicName: "/countstr"
+        rosTopicType: "std_msgs::msg::String"
